@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/25
-#Update: 2021/11/21
+#Update: 2022/01/14
 # -*- coding: utf-8 -*-
 #---------------------------------------
 
@@ -39,7 +39,7 @@ class Parameters:
         self.num_filters    = 256
         self.num_filters_p  = 2
         self.num_filters_v  = 1
-        self.num_res        = 2
+        self.num_res        = 3
         self.epochs         = 1
         self.batch_size     = 2048
         self.lam            = 2e-1
