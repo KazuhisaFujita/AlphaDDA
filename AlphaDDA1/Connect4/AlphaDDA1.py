@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/10
-#Update: 2021/11/12
+#Update: 2022/01/13
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import numpy as np
@@ -44,11 +44,11 @@ class Node():
         self.children.append(child)
 
 class A_MCTS:
-    def __init__(self, game, net = None, params = Parameters(), estimated_outcome = [], num_mean = 1, X0 = 0.1, A = 1000, N_MAX =300):
+    def __init__(self, game, net = None, params = Parameters(), num_mean = 1, X0 = 0.1, A = 1000, N_MAX =300, states = None):
         self.num_moves = None
 
         self.max_num_values = num_mean
-        self.estimated_outcome = estimated_outcome
+        self.estimated_outcome = []
 
         g = game
         self.player = g.current_player
@@ -63,6 +63,8 @@ class A_MCTS:
         self.A = A
         self.X0 = X0
         self.N_MAX = N_MAX
+
+        self.states = states
 
     def softmax(self, x):
         x = np.exp(x / self.params.Temp)
@@ -87,11 +89,11 @@ class A_MCTS:
             winner = temp_g.Get_winner()
             node.Add_child(board = board, states = states , player = player, move = m, psa = psa, terminal = terminal, winner = winner, parent = node)
 
-    def Store_outcome(self):
+    def Store_outcome(self, state):
         # Store the value of the board state.
 
         # Estimate the value of the board state.
-        _, estimated_outcome =  self.nn.predict(self.root.Get_states())
+        _, estimated_outcome =  self.nn.predict(state)
 
         # Add the value to the queue.
         self.estimated_outcome.append(np.asscalar(estimated_outcome))
@@ -102,6 +104,9 @@ class A_MCTS:
 
     def Run(self):
         temp_g = Connect4()
+
+        for i in self.states:
+            self.Store_outcome(i)
 
         # Change the number of simulations.
         self.params.num_mcts_sims = math.ceil(10**(- self.A * (mean(self.estimated_outcome) * self.root.player + self.X0)))

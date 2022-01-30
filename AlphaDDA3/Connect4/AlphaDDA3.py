@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/10
-#Update: 2021/11/14
+#Update: 2022/01/13
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import numpy as np
@@ -44,7 +44,7 @@ class Node():
         self.children.append(child)
 
 class A_MCTS:
-    def __init__(self, game, net = None, params = Parameters(), estimated_outcome = [], num_func = 0, num_mean = 1, C = 0.5):
+    def __init__(self, game, net = None, params = Parameters(), num_func = 0, num_mean = 1, C = 0.5, states = None):
         self.num_func = num_func
         self.C = C
 
@@ -58,10 +58,12 @@ class A_MCTS:
             self.nn = net
 
         self.max_num_values = num_mean
-        self.estimated_outcome = estimated_outcome
+        self.estimated_outcome = []
 
         self.root = Node(board = g.Get_board(), states = g.Get_states(), player = g.current_player)
         self.params = params
+
+        self.states = states
 
     def softmax(self, x):
         x = np.exp(x / self.params.Temp)
@@ -86,14 +88,25 @@ class A_MCTS:
             winner = temp_g.Get_winner()
             node.Add_child(board = board, states = states , player = player, move = m, psa = psa, terminal = terminal, winner = winner, parent = node)
 
-    def Store_outcome(self):
-        _, estimated_outcome =  self.nn.predict(self.root.Get_states())
+
+    def Store_outcome(self, state):
+        # Store the value of the board state.
+
+        # Estimate the value of the board state.
+        _, estimated_outcome =  self.nn.predict(state)
+
+        # Add the value to the queue.
         self.estimated_outcome.append(np.asscalar(estimated_outcome))
+
+        # Pop the value if size of the queue is more than the max.
         if len(self.estimated_outcome) > self.max_num_values:
             self.estimated_outcome.pop(0)
 
     def Run(self):
         temp_g = Connect4()
+
+        for i in self.states:
+            self.Store_outcome(i)
 
         for _ in range(self.params.num_mcts_sims):
             # Travel the game tree from the root node to the leaf node.

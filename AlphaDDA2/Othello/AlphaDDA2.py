@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/10
-#Update: 2021/11/16
+#Update: 2022/01/14
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import numpy as np
@@ -14,8 +14,8 @@ from statistics import mean
 
 class Node():
     def __init__(self, board, states, player, move = None, psa = 0, terminal = False, winner = 0, parent = None, depth = 0):
-        self.nsa      = 0
-        self.wsa      = 0
+        self.nsa      = 0 # the number of times the node has been visited
+        self.wsa      = 0 #np.random.rand()
         self.qsa      = 0
         self.psa      = psa
         self.player   = player
@@ -44,11 +44,11 @@ class Node():
         self.children.append(child)
 
 class A_MCTS:
-    def __init__(self, game, net = None, params = Parameters(), estimated_outcome = [], num_mean = 1, X0 = 0.1, A = 5):
+    def __init__(self, game, net = None, params = Parameters(), num_mean = 1, X0 = 0.1, A = 5, states = None):
         self.num_moves = None
 
         self.max_num_values = num_mean
-        self.estimated_outcome = estimated_outcome
+        self.estimated_outcome = []
 
         g = game
         self.player = g.current_player
@@ -62,6 +62,8 @@ class A_MCTS:
 
         self.A = A
         self.X0 = X0
+
+        self.states = states
 
     def softmax(self, x):
         x = np.exp(x / self.params.Temp)
@@ -86,15 +88,24 @@ class A_MCTS:
             winner = temp_g.Get_winner()
             node.Add_child(board = board, states = states , player = player, move = m, psa = psa, terminal = terminal, winner = winner, parent = node)
 
-    def Store_outcome(self):
-        self.nn.net.dropout = 0
-        _, estimated_outcome =  self.nn.predict(self.root.Get_states())
+    def Store_outcome(self, state):
+        # Store the value of the board state.
+
+        # Estimate the value of the board state.
+        _, estimated_outcome =  self.nn.predict(state)
+
+        # Add the value to the queue.
         self.estimated_outcome.append(np.asscalar(estimated_outcome))
+
+        # Pop the value if size of the queue is more than the max.
         if len(self.estimated_outcome) > self.max_num_values:
             self.estimated_outcome.pop(0)
 
     def Run(self):
         temp_g = Othello()
+
+        for i in self.states:
+            self.Store_outcome(i)
 
         self.nn.net.dropout = self.A * (mean(self.estimated_outcome) * self.root.player + self.X0)
         if self.nn.net.dropout < 0:
@@ -129,6 +140,11 @@ class A_MCTS:
 
             self.Back_prop(node, v)
 
+        # print(self.root.nsa)
+        # for i in self.root.children:
+        #     print(i.move, i.wsa, i.nsa, i.qsa)
+        # print("")
+
         return self.Decide_move()
 
     def Decide_move(self):
@@ -144,6 +160,13 @@ class A_MCTS:
             N = np.sum(np.array([i.nsa for i in node.children]))
             best_child = node.children[np.argmax(np.array([self.l(i.qsa, i.nsa, i.psa, N) for i in node.children], dtype="float"))]
         else:
+
+            # N = np.sum(np.array([i.nsa for i in node.children]))
+            # dirichlet_input = self.params.alpha * np.ones(len(node.children))
+            # dirichlet_noise = np.random.dirichlet(dirichlet_input)
+            # best_child = node.children[np.argmax(np.array([self.l(node.children[i].qsa, node.children[i].nsa,
+            #                                                       (1 - self.params.eps) * node.children[i].psa + self.params.eps * dirichlet_noise[i], N) for i in range(len(node.children))]))]
+
             if np.random.rand() > self.params.rnd_rate:
                 N = np.sum(np.array([i.nsa for i in node.children]))
                 best_child = node.children[np.argmax(np.array([self.l(i.qsa, i.nsa, i.psa, N) for i in node.children], dtype="float"))]
@@ -165,7 +188,7 @@ class A_MCTS:
     def Get_prob(self):
         prob = np.zeros(self.params.action_size)
         for i in self.root.children:
-            prob[i.move[0] * self.params.board_x +  i.move[1]] += i.nsa
+            prob[i.move[0] * self.params.board_x +  i.move[1]] += i.nsa# ** (1 / self.params.Tau)
 
         prob /= np.sum(prob)
         return(prob)
