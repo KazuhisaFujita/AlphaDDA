@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/25
-#Update: 2022/01/14
+#Update: 2022/01/13
 # -*- coding: utf-8 -*-
 #---------------------------------------
 
@@ -14,23 +14,23 @@ class Parameters:
         self.white       = -1
 
         #AlphaZero
-        self.num_iterations      = 600
-        self.num_games           = 10
+        self.num_iterations      = 600 # Number of iterations.
+        self.num_games           = 10  # Number of self play games played during each iteration. num_game // num_processes // 2
         self.checkpoint_interval = 5
         self.num_test            = 10
 
         self.num_processes_training = 10
         self.num_processes_test = 10
-        self.devices       = ["cuda:0", "cuda:0", "cuda:0", "cuda:0", "cuda:0", "cuda:1", "cuda:2", "cuda:0", "cuda:1", "cuda:2"]
+        self.devices       = ["cuda:0", "cuda:1", "cuda:0", "cuda:1", "cuda:0", "cuda:1", "cuda:0", "cuda:1", "cuda:0", "cuda:1"]
 
         #MCTS
-        self.num_mcts_sims = 200
-        self.cpuct         = 1.25
-        self.opening_train = 4
-        self.opening_test  = 0
-        self.opening       = self.opening_train
+        self.num_mcts_sims = 200 # Number of MCTS simulations per game.
+        self.cpuct         = 1.25 # The level of exploration used in MCTS.
+        self.opening       = 4
         self.Temp          = 20
         self.rnd_rate      = 0.2
+        self.eps           = 0.25
+        self.alpha         = 0.15
 
         #Neural Network
         self.input_size     = 20000
