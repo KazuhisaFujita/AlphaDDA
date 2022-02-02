@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/06/12
-#Update: 2022/01/22
+#Update: 2022/02/02
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import numpy as np
@@ -68,7 +68,7 @@ class Cal:
             self.AlphaZero(g, count)
         elif player == "alphazero_dda":
             self.dda(g, count, states)
-        elif player == "minimax":
+        elif player == "minimax1":
             self.Minimax(g)
         elif player == "minimax2":
             self.Minimax2(g)
@@ -80,6 +80,9 @@ class Cal:
             self.MCTS(g, 200)
         elif player == "mcts4":
             self.MCTS(g, 50)
+        else:
+            print("Error")
+            exit()
 
     def dda(self, g, count, states):
         amcts = DDA(game = g, net = self.net, num_mean = self.num_mean, X0 = self.X0, A = self.A, N_MAX = self.N_MAX, states = states)
