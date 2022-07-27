@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/06/12
-#Update: 2022/01/22
+#Update: 2022/07/26
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import numpy as np
@@ -18,7 +18,7 @@ import random
 import sys
 
 class Cal:
-    def __init__(self, num_func = 0, num_mean = 1, C = 0.5):
+    def __init__(self, num_mean = 1, C = 0.5):
         self.num_games = 50
         self.dda_player  = "alphazero_dda"
         self.players  = ["alphazero", "mcts1", "mcts2", "mcts3", "mcts4", "minimax1", "minimax2", "random"]
@@ -29,7 +29,6 @@ class Cal:
         self.net.load_checkpoint()
         mp.set_start_method('spawn')
 
-        self.num_func = num_func
         self.num_mean = num_mean
         self.C = C
 
@@ -83,7 +82,7 @@ class Cal:
             exit()
 
     def dda(self, g, count, states):
-        amcts = DDA(game = g, net = self.net, num_func = self.num_func, num_mean = self.num_mean, C = self.C, states = states)
+        amcts = DDA(game = g, net = self.net, num_mean = self.num_mean, C = self.C, states = states)
         amcts.num_moves = count
         action = amcts.Run()
         g.Play_action(action)
@@ -131,7 +130,7 @@ class Cal:
         schedule = self.Make_schedule_first(self.players)
         win_lose_first = self.parallel_play(schedule)
         for i in self.players:
-            print("first:", self.num_mean, self.num_func, self.C, i, win_lose_first[i][0], win_lose_first[i][1], self.num_games - win_lose_first[i][0] - win_lose_first[i][1])
+            print("first:", self.num_mean, self.C, i, win_lose_first[i][0], win_lose_first[i][1], self.num_games - win_lose_first[i][0] - win_lose_first[i][1])
 
         for i in self.players:
             win_lose[i] += win_lose_first[i]
@@ -139,13 +138,13 @@ class Cal:
         schedule = self.Make_schedule_second(self.players)
         win_lose_second = self.parallel_play(schedule)
         for i in self.players:
-            print("second:", self.num_mean, self.num_func, self.C, i, win_lose_second[i][0], win_lose_second[i][1], self.num_games - win_lose_second[i][0] - win_lose_second[i][1])
+            print("second:", self.num_mean, self.C, i, win_lose_second[i][0], win_lose_second[i][1], self.num_games - win_lose_second[i][0] - win_lose_second[i][1])
 
         for i in self.players:
             win_lose[i] += win_lose_second[i]
 
         for i in self.players:
-            print("total:", self.num_mean, self.num_func, self.C, i, win_lose[i][0], win_lose[i][1], self.num_games * 2- win_lose[i][0] - win_lose[i][1])
+            print("total:", self.num_mean, self.C, i, win_lose[i][0], win_lose[i][1], self.num_games * 2- win_lose[i][0] - win_lose[i][1])
 
     def parallel_play(self, schedule):
         win_lose = self.Init_win(self.players)
@@ -211,7 +210,6 @@ class Cal:
 
 if __name__ == '__main__':
     num_mean = int(sys.argv[1])
-    num_func = int(sys.argv[2])
-    C = float(sys.argv[3])
-    cal = Cal(num_func = num_func, num_mean = num_mean, C = C)
+    C = float(sys.argv[2])
+    cal = Cal(num_mean = num_mean, C = C)
     cal.Cal()

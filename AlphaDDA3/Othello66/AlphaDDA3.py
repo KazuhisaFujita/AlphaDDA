@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/10
-#Update: 2022/01/13
+#Update: 2022/07/26
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import numpy as np
@@ -44,8 +44,7 @@ class Node():
         self.children.append(child)
 
 class A_MCTS:
-    def __init__(self, game, net = None, params = Parameters(), num_func = 0, num_mean = 1, C = 0.5, states = None):
-        self.num_func = num_func
+    def __init__(self, game, net = None, params = Parameters(), num_mean = 1, C = 0.5, states = None):
         self.C = C
 
         self.num_moves = None
@@ -177,30 +176,7 @@ class A_MCTS:
         while node != self.root:
             node.nsa += 1
 
-            if self.num_func == 0:
-                node.wsa += v * ( - node.player)
-            elif self.num_func == 1:
-                node.wsa += 1/((v * ( - node.player) - mean(self.estimated_outcome) * (- self.root.player)) ** 2 + 1e-7)#1
-            elif self.num_func == 2:
-                node.wsa += 1/(math.fabs(v * ( - node.player) - mean(self.estimated_outcome) * (- self.root.player)) + 1e-15)#2
-            elif self.num_func == 3:
-                node.wsa += - math.fabs(v * ( - node.player) - mean(self.estimated_outcome) * (- self.root.player))#3
-            elif self.num_func == 4:
-                node.wsa += - (v * ( - node.player) - mean(self.estimated_outcome) * (- self.root.player))** 2#4
-            elif self.num_func == 5:
-                node.wsa += math.exp(-(v * ( - node.player) - mean(self.estimated_outcome) * (- self.root.player))**2/2/(0.5**2))#5
-            elif self.num_func == 6:
-                node.wsa += math.exp(-(v * ( - node.player) - mean(self.estimated_outcome) * (- self.root.player))**2/2/(0.1**2))#6
-            elif self.num_func == 7:
-                node.wsa += math.exp(-(v * ( - node.player) - mean(self.estimated_outcome) * (- self.root.player))**2/2/(0.9**2))#7
-            elif self.num_func == 8:
-                node.wsa += v * ( - node.player) * mean(self.estimated_outcome) * (- self.root.player)
-            elif self.num_func == 9:
-                # if node.player == root.player:
-                #     node.wsa += - math.fabs(v  - mean(self.estimated_outcome))
-                # else:
-                #     node.wsa += - math.fabs(v  + mean(self.estimated_outcome))
-                node.wsa += - math.fabs(v  - mean(self.estimated_outcome) * node.player * self.root.player)
+            node.wsa += - math.fabs(v  - mean(self.estimated_outcome) * node.player * self.root.player)
 
             node.qsa = node.wsa / node.nsa
             node = node.parent
