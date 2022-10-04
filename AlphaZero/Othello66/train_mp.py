@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/23
-#Update: 2021/11/17
+#Update: 2022/10/04
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import numpy as np
@@ -93,7 +93,6 @@ class Train():
             output  = [p.get() for p in results]
             pool.close()
             pool.join()
-            processes = []
 
             # Add the data obtained in self-play to the lists.
             for j in range(self.params.num_processes_training):
@@ -229,7 +228,6 @@ class Train():
         output = [p.get() for p in results]
         pool.close()
         pool.join()
-        processes = []
 
         num_win_alpha = 0
         num_win_mm = 0

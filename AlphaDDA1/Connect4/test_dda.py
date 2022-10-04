@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/06/12
-#Update: 2022/02/02
+#Update: 2022/10/04
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import numpy as np
@@ -153,7 +153,6 @@ class Cal:
         output = [p.get() for p in results]
         pool.close()
         pool.join()
-        processes = []
 
         for j in range(num_processes):
             for l in output[j]:
