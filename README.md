@@ -13,8 +13,8 @@ In this study, AlphaDDAs play Connect4, 6x6 Othello, and Othello with the AI pla
 6x6 Othello is Othello using a 6x6 board.
 The weights of AlphaDDAs are the same as trained AlphaZero.
 The codes of AlphaZero used in this study are opened in the "AlphaZero directory".
-The details of AlphaDDA are denoted in Fujita 2021.
+The details of AlphaDDA are denoted in Fujita 2022.
 
 ## References
 
-- Kazuhisa Fujita (2021) AlphaDDA: game artificial intelligence with dynamic difficulty adjustment using AlphaZero, arXiv:2111.06266.
+- [Kazuhisa Fujita (2022) AlphaDDA: Strategies for Adjusting the Playing Strength of a Fully Trained AlphaZero System to a Suitable Human Training Partner. PeerJ Computer Science, 8, e1123.](https://peerj.com/articles/cs-1123/)
