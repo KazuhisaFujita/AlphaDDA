@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/08
-#Update: 2021/11/12
+#Update: 2023/07/06
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import torch
@@ -105,7 +105,7 @@ class NNetWrapper:
         with torch.no_grad():
             pi, v = self.net(board)
 
-        return torch.exp(pi).data.to('cpu').numpy()[0], v.data.to('cpu').numpy()[0]
+        return torch.exp(pi).data.to('cpu').numpy()[0], v.item()
 
     def train(self, training_board, training_prob, training_v):
         device = torch.device(self.device)

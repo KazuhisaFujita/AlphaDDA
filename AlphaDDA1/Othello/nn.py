@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/08
-#Update: 2020/09/09
+#Update: 2023/07/06
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import torch
@@ -95,8 +95,6 @@ class NNetWrapper:
         self.params = params
         self.net = Net()
         self.device = device
-        # device = torch.device(self.device)
-        # self.net.to(device)
 
     def predict(self, states):
         device = torch.device(self.device)
@@ -107,7 +105,7 @@ class NNetWrapper:
         with torch.no_grad():
             pi, v = self.net(board)
 
-        return torch.exp(pi).data.to('cpu').numpy()[0], v.data.to('cpu').numpy()[0]
+        return torch.exp(pi).data.to('cpu').numpy()[0], v.item()
 
     def train(self, training_board, training_prob, training_v):
         device = torch.device(self.device)
@@ -143,8 +141,6 @@ class NNetWrapper:
         torch.cuda.empty_cache()
 
     def loss_pi(self, targets, outputs):
-        #return -torch.sum(targets * torch.log(outputs))/targets.size()[0] # When outputs ~ 0, log(outputs) becomes infinity (Nan).
-        #return -torch.sum(targets * torch.log(outputs + 1e-15))/targets.size()[0]
         return -torch.sum(targets * outputs)/targets.size()[0]
 
     def loss_v(self, targets, outputs):
