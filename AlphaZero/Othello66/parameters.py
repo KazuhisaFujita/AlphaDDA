@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/25
-#Update: 2022/01/13
+#Update: 2023/07/06
 # -*- coding: utf-8 -*-
 #---------------------------------------
 
@@ -27,6 +27,8 @@ class Parameters:
         self.num_mcts_sims = 200 # Number of MCTS simulations per game.
         self.cpuct         = 1.25 # The level of exploration used in MCTS.
         self.opening       = 4
+        self.opening_train = 4
+        self.opening_test  = 0
         self.Temp          = 20
         self.rnd_rate      = 0.2
         self.eps           = 0.25
