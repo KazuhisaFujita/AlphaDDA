@@ -1,19 +1,20 @@
 #---------------------------------------
 #Since : 2019/04/10
-#Update: 2020/07/06
+#Update: 2023/12/19
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import numpy as np
 from copy import deepcopy
 import random
 import math
+from nn import NNetWrapper as nnet
 from parameters import Parameters
 from Othello import Othello
 
 class Node():
     def __init__(self, board, states, player, move = None, psa = 0, terminal = False, winner = 0, parent = None, depth = 0):
-        self.nsa      = 0 # the number of times the node has been visited
-        self.wsa      = 0 #np.random.rand()
+        self.nsa      = 0
+        self.wsa      = 0
         self.qsa      = 0
         self.psa      = psa
         self.player   = player
@@ -47,7 +48,10 @@ class A_MCTS:
 
         g = game
         self.player = g.current_player
-        self.nn = net
+        if net == None:
+            self.nn = nnet()
+        else:
+            self.nn = net
 
         self.root = Node(board = g.Get_board(), states = g.Get_states(), player = g.current_player)
         self.params = params
@@ -67,7 +71,7 @@ class A_MCTS:
             temp_g.state = node.Get_states()
             temp_g.current_player = node.Get_player()
             temp_g.Play_action(m)
-            psa = psa_vector[m[0] * self.params.board_x + m[1]]
+            psa = psa_vector[m[0] * self.params.board_y + m[1]]
             board = temp_g.Get_board()
             player = temp_g.current_player
             states = temp_g.Get_states()
@@ -99,16 +103,11 @@ class A_MCTS:
                 valid_moves = temp_g.Get_valid_moves()
 
                 # normalize probability
-                psa_vector /= np.sum(np.array([psa_vector[i[0] * self.params.board_x + i[1]] for i in valid_moves])) + 1e-7
+                psa_vector /= np.sum(np.array([psa_vector[i[0] * self.params.board_y + i[1]] for i in valid_moves])) + 1e-7
 
                 self.Expand_node(node, psa_vector)
 
             self.Back_prop(node, v)
-
-        # print(self.root.nsa)
-        # for i in self.root.children:
-        #     print(i.move, i.wsa, i.nsa, i.qsa)
-        # print("")
 
         return self.Decide_move()
 
@@ -125,13 +124,6 @@ class A_MCTS:
             N = np.sum(np.array([i.nsa for i in node.children]))
             best_child = node.children[np.argmax(np.array([self.l(i.qsa, i.nsa, i.psa, N) for i in node.children], dtype="float"))]
         else:
-
-            # N = np.sum(np.array([i.nsa for i in node.children]))
-            # dirichlet_input = self.params.alpha * np.ones(len(node.children))
-            # dirichlet_noise = np.random.dirichlet(dirichlet_input)
-            # best_child = node.children[np.argmax(np.array([self.l(node.children[i].qsa, node.children[i].nsa,
-            #                                                       (1 - self.params.eps) * node.children[i].psa + self.params.eps * dirichlet_noise[i], N) for i in range(len(node.children))]))]
-
             if np.random.rand() > self.params.rnd_rate:
                 N = np.sum(np.array([i.nsa for i in node.children]))
                 best_child = node.children[np.argmax(np.array([self.l(i.qsa, i.nsa, i.psa, N) for i in node.children], dtype="float"))]
@@ -153,7 +145,7 @@ class A_MCTS:
     def Get_prob(self):
         prob = np.zeros(self.params.action_size)
         for i in self.root.children:
-            prob[i.move[0] * self.params.board_x +  i.move[1]] += i.nsa# ** (1 / self.params.Tau)
+            prob[i.move[0] * self.params.board_y +  i.move[1]] += i.nsa
 
         prob /= np.sum(prob)
         return(prob)

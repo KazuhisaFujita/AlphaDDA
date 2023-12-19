@@ -1,6 +1,6 @@
 #---------------------------------------
 #Since : 2019/04/10
-#Update: 2021/11/16
+#Update: 2023/12/19
 # -*- coding: utf-8 -*-
 #---------------------------------------
 import numpy as np
@@ -71,7 +71,7 @@ class A_MCTS:
             temp_g.state = node.Get_states()
             temp_g.current_player = node.Get_player()
             temp_g.Play_action(m)
-            psa = psa_vector[m[0] * self.params.board_x + m[1]]
+            psa = psa_vector[m[0] * self.params.board_y + m[1]]
             board = temp_g.Get_board()
             player = temp_g.current_player
             states = temp_g.Get_states()
@@ -103,7 +103,7 @@ class A_MCTS:
                 valid_moves = temp_g.Get_valid_moves()
 
                 # normalize probability
-                psa_vector /= np.sum(np.array([psa_vector[i[0] * self.params.board_x + i[1]] for i in valid_moves])) + 1e-7
+                psa_vector /= np.sum(np.array([psa_vector[i[0] * self.params.board_y + i[1]] for i in valid_moves])) + 1e-7
 
                 self.Expand_node(node, psa_vector)
 
@@ -145,7 +145,7 @@ class A_MCTS:
     def Get_prob(self):
         prob = np.zeros(self.params.action_size)
         for i in self.root.children:
-            prob[i.move[0] * self.params.board_x +  i.move[1]] += i.nsa
+            prob[i.move[0] * self.params.board_y +  i.move[1]] += i.nsa
 
         prob /= np.sum(prob)
         return(prob)
